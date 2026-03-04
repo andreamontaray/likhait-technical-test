@@ -27,8 +27,9 @@ services:
           "-prootpassword",
         ]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 20s
+      retries: 20
+      start_period: 60s
     networks:
       - expense_network
 
@@ -55,9 +56,8 @@ services:
     command: >
       sh -c "
         bundle install &&
-        rails db:migrate &&
-        rails db:seed &&
-        rails server -b 0.0.0.0
+        bundle exec rails db:migrate &&
+        bundle exec rails server -b 0.0.0.0
       "
     networks:
       - expense_network
