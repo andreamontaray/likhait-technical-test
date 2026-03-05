@@ -55,9 +55,9 @@ services:
     command: >
       sh -c "
         bundle install &&
-        rails db:migrate &&
-        rails db:seed &&
-        rails server -b 0.0.0.0
+        bundle exec rails db:migrate &&
+        bundle exec rails db:seed &&
+        bundle exec rails server -b 0.0.0.0
       "
     networks:
       - expense_network
@@ -69,6 +69,8 @@ services:
     container_name: expense_system_frontend
     environment:
       VITE_API_URL: http://localhost:3000
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     ports:
       - "5173:5173"
     depends_on:
