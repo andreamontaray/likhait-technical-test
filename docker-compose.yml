@@ -54,9 +54,9 @@ services:
       - backend_gems:/usr/local/bundle
     command: >
       sh -c "
-        rm -f tmp/pids/server.pid &&
         bundle install &&
         bundle exec rails db:migrate &&
+        bundle exec rails db:seed &&
         bundle exec rails server -b 0.0.0.0
       "
     networks:
@@ -69,6 +69,8 @@ services:
     container_name: expense_system_frontend
     environment:
       VITE_API_URL: http://localhost:3000
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     ports:
       - "5173:5173"
     depends_on:
