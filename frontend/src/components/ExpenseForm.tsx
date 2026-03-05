@@ -2,11 +2,11 @@
  * Form component for adding/editing expenses
  */
 
-import React from "react";
-import { ExpenseFormData } from "../types";
-import { EXPENSE_CATEGORIES } from "../constants/categories";
+import React, { useEffect, useState } from "react";
+import { CategoryOption, ExpenseFormData } from "../types";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { fetchCategories } from "../services/api";
 
 interface ExpenseFormProps {
   initialData?: Partial<ExpenseFormData>;
@@ -26,6 +26,8 @@ export function ExpenseForm({
       initialData,
       onSubmit,
     });
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const formStyle: React.CSSProperties = {
     display: "flex",
@@ -39,18 +41,33 @@ export function ExpenseForm({
     marginTop: "0.5rem",
   };
 
-  const categoryOptions = EXPENSE_CATEGORIES.map((category) => ({
-    value: category,
-    label: category,
-  }));
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  const getCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchCategories();
+      const options = data.map((category) => ({
+        value: category.name,
+        label: category.name,
+      }));
+      setCategoryOptions(options);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
       <TextField
-        label="Amount"
-        type="number"
-        step="0.01"
-        placeholder="0.00"
+        label='Amount'
+        type='number'
+        step='0.01'
+        placeholder='0.00'
         value={formData.amount}
         onChange={(e) => handleChange("amount", e.target.value)}
         error={errors.amount}
@@ -59,9 +76,9 @@ export function ExpenseForm({
       />
 
       <TextField
-        label="Description"
-        type="text"
-        placeholder="Enter description"
+        label='Description'
+        type='text'
+        placeholder='Enter description'
         value={formData.description}
         onChange={(e) => handleChange("description", e.target.value)}
         error={errors.description}
@@ -70,8 +87,12 @@ export function ExpenseForm({
       />
 
       <SelectBox
-        label="Category"
-        options={categoryOptions}
+        label='Category'
+        options={
+          loading
+            ? [{ value: "loading", label: "Loading..." }]
+            : categoryOptions
+        }
         value={formData.category}
         onChange={(e) => handleChange("category", e.target.value)}
         error={errors.category}
@@ -80,8 +101,8 @@ export function ExpenseForm({
       />
 
       <TextField
-        label="Date"
-        type="date"
+        label='Date'
+        type='date'
         value={formData.date}
         onChange={(e) => handleChange("date", e.target.value)}
         error={errors.date}
@@ -91,8 +112,8 @@ export function ExpenseForm({
 
       <div style={buttonGroupStyle}>
         <Button
-          type="submit"
-          variant="primary"
+          type='submit'
+          variant='primary'
           disabled={isSubmitting}
           fullWidth
         >
@@ -100,8 +121,8 @@ export function ExpenseForm({
         </Button>
         {onCancel && (
           <Button
-            type="button"
-            variant="secondary"
+            type='button'
+            variant='secondary'
             onClick={onCancel}
             disabled={isSubmitting}
           >
